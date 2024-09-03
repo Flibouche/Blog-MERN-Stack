@@ -1,12 +1,14 @@
-import React from 'react'
-import { useState } from 'react'
-import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
-import { Link, useNavigate } from 'react-router-dom'
+import React from 'react';
+import { useState } from 'react';
+import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 
 export default function SignIn() {
     const [formData, setFormData] = useState({}); // On initialise le state formData qui sert à stocker les données du formulaire
-    const [errorMessage, setErrorMessage] = useState(null); // On initialise le state errorMessage qui sert à stocker les messages d'erreur
-    const [loading, setLoading] = useState(false); // On initialise le state loading qui sert à afficher le spinner de chargement
+    const { loading, error: errorMessage } = useSelector(state => state.user); // On extrait les valeurs loading et error du state user
+    const dispatch = useDispatch(); // On initialise la fonction dispatch qui permet de dispatcher les actions
     const navigate = useNavigate(); // On initialise la fonction navigate qui permet de rediriger l'utilisateur vers une autre page
 
     const handleChange = (e) => {
@@ -18,12 +20,11 @@ export default function SignIn() {
         e.preventDefault();
 
         if (!formData.email || !formData.password) {
-            return setErrorMessage('Please fill all the fields');
+            return dispatch(signInFailure('Please fill all the fields')); // On dispatch l'action signInFailure pour indiquer que la requête de connexion a échoué
         }
 
         try {
-            setLoading(true);
-            setErrorMessage(null);
+            dispatch(signInStart()); // On dispatch l'action signInStart pour indiquer que la requête de connexion a commencé
             const res = await fetch('/api/auth/signin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -31,16 +32,15 @@ export default function SignIn() {
             });
             const data = await res.json();
             if (data.success === false) {
-                return setErrorMessage(data.message);
+                dispatch(signInFailure(data.message)); // On dispatch l'action signInFailure pour indiquer que la requête de connexion a échoué
             }
-            setLoading(false);
             if (res.ok) {
+                dispatch(signInSuccess(data)); // On dispatch l'action signInSuccess pour indiquer que la requête de connexion a réussi
                 navigate('/');
             }
 
         } catch (error) {
-            setErrorMessage(error.message);
-            setLoading(false);
+            dispatch(signInFailure(error.message)); // On dispatch l'action signInFailure pour indiquer que la requête de connexion a échoué
         }
     };
 
