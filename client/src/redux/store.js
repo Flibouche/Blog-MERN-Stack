@@ -4,6 +4,9 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 // Importation du réducteur utilisateur depuis le fichier userSlice
 import userReducer from './user/userSlice';
 
+// Importation du réducteur de thème depuis le fichier themeSlice
+import themeReducer from './theme/themeSlice';
+
 // Importation des fonctions de redux-persist pour gérer la persistance du store
 import { persistReducer, persistStore } from 'redux-persist';
 
@@ -13,6 +16,7 @@ import storage from 'redux-persist/lib/storage';
 // Combinaison des différents réducteurs (reducers) en un seul réducteur principal
 const rootReducer = combineReducers({
     user: userReducer,  // On associe le réducteur userReducer à la clé 'user' dans le state global
+    theme: themeReducer,  // On associe le réducteur themeReducer à la clé 'theme' dans le state global
 });
 
 // Configuration de la persistance du store
