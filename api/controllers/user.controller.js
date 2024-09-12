@@ -96,12 +96,25 @@ export const getUsers = async (req, res, next) => {
         const lastMonthusers = await User.countDocuments({
             createdAt: { $gte: oneMonthAgo },
         });
-        
+
         res.status(200).json({
             users: usersWithoutPassword,
             totalUsers,
             lastMonthusers,
         });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            return next(errorHandler(404, 'User not found'));
+        }
+        const { password, ...rest } = user._doc;
+        res.status(200).json(rest);
     } catch (error) {
         next(error);
     }
