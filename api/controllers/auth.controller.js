@@ -7,8 +7,19 @@ import jwt from 'jsonwebtoken';
 export const signup = async (req, res, next) => {
     const { username, email, password } = req.body;
 
+    const usernameRegex = /^[^\s;]+$/;
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
     if (!username || !email || !password || username === '' || email === '' || password === '') {
         next(errorHandler(400, 'All fields are required'));
+    }
+
+    if (!usernameRegex.test(username)) {
+        return next(errorHandler(400, 'Username must not contain spaces or semicolons characters'));
+    }
+
+    if (!emailRegex.test(email)) {
+        return next(errorHandler(400, 'Invalid email format'));
     }
 
     const hashedPassword = bcryptjs.hashSync(password, 10);
